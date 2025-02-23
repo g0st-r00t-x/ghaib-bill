@@ -1,5 +1,3 @@
-"use client"
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/Components/ui/card"
 import { Line, LineChart, ResponsiveContainer, Tooltip } from "recharts"
 

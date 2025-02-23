@@ -7,10 +7,10 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/Components/ui/button"
 import { ScrollArea } from "@/Components/ui/scroll-area"
 import { Globe2, Menu } from "lucide-react"
-import Link from "next/link"
 import { Navbar } from "@/Components/navbar"
 import { NavItems } from "@/Components/nav-items"
 import { MobileSidebar } from "@/Components/layout/mobile-sidebar"
+import { Link } from "@inertiajs/react"
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)

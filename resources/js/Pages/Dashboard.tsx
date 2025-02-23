@@ -1,26 +1,23 @@
+import { DashboardShell } from '@/Components/layout/dashboard-shell';
+import { NetworkStats } from '@/Components/network-stats';
+import { Overview } from '@/Components/overview';
+import { RecentActivity } from '@/Components/recent-activity';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 
 export default function Dashboard() {
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Dashboard
-                </h2>
-            }
-        >
-            <Head title="Dashboard" />
-
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                        <div className="p-6 text-gray-900">
-                            You're logged in!
-                        </div>
-                    </div>
+        <DashboardShell>
+            <div className="flex-1 space-y-4 p-4 pt-6 md:p-8">
+                <div className="flex items-center justify-between space-y-2">
+                    <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+                </div>
+                <NetworkStats />
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+                    <Overview />
+                    <RecentActivity />
                 </div>
             </div>
-        </AuthenticatedLayout>
+        </DashboardShell>
     );
 }

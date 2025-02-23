@@ -1,7 +1,6 @@
 "use client"
 
 import { Bell, Settings, LogOut, User } from "lucide-react"
-import Link from "next/link"
 import { Button } from "@/Components/ui/button"
 import {
   DropdownMenu,
@@ -16,6 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/Components/ui/avatar"
 import { Badge } from "@/Components/ui/badge"
 import { ScrollArea } from "@/Components/ui/scroll-area"
 import { CommandMenu } from "@/Components/command-menu"
+import { Link } from "@inertiajs/react"
 
 const recentNotifications = [
   {

@@ -1,7 +1,4 @@
-"use client"
-
 import * as React from "react"
-import { useSearchParams } from "next/navigation"
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -191,7 +188,6 @@ interface FilterOption {
 }
 
 export function ConnectionsTable() {
-  const searchParams = useSearchParams()
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -200,21 +196,18 @@ export function ConnectionsTable() {
   const [highlightedRow, setHighlightedRow] = React.useState<string | null>(null)
 
   // Handle search params for highlighting and filtering
-  React.useEffect(() => {
-    const highlight = searchParams.get("highlight")
-    const username = searchParams.get("username")
-    const ip = searchParams.get("ip")
+  // React.useEffect(() => {
 
-    if (highlight) {
-      setHighlightedRow(highlight)
-    }
-    if (username) {
-      addFilter("username", username, `Username: ${username}`)
-    }
-    if (ip) {
-      addFilter("ipAddress", ip, `IP: ${ip}`)
-    }
-  }, [searchParams])
+  //   if (highlight) {
+  //     setHighlightedRow(highlight)
+  //   }
+  //   if (username) {
+  //     addFilter("username", username, `Username: ${username}`)
+  //   }
+  //   if (ip) {
+  //     addFilter("ipAddress", ip, `IP: ${ip}`)
+  //   }
+  // }, [])
 
   const table = useReactTable({
     data,

@@ -1,7 +1,4 @@
-"use client"
-
 import * as React from "react"
-import { useRouter } from "next/navigation"
 import { Calculator, Calendar, CreditCard, Settings, User, Network, Wifi, Search } from "lucide-react"
 import type { Connection } from "@/Components/connections-table"
 
@@ -15,6 +12,7 @@ import {
   CommandSeparator,
 } from "@/Components/ui/command"
 import { Button } from "./ui/button"
+import { router } from "@inertiajs/react"
 
 // This would come from your API
 const connections: Connection[] = [
@@ -46,7 +44,6 @@ const connections: Connection[] = [
 
 export function CommandMenu() {
   const [open, setOpen] = React.useState(false)
-  const router = useRouter()
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -66,7 +63,7 @@ export function CommandMenu() {
       ip: connection.ipAddress,
     }).toString()
 
-    router.push(`/pppoe/active?${searchParams}`)
+    router.visit(`/pppoe/active?${searchParams}`)
     setOpen(false)
   }
 
@@ -98,11 +95,11 @@ export function CommandMenu() {
           </CommandGroup>
           <CommandSeparator />
           <CommandGroup heading="Quick Links">
-            <CommandItem onSelect={() => router.push("/pppoe/active")}>
+            <CommandItem onSelect={() => router.visit("/pppoe/active")}>
               <Network className="mr-2 h-4 w-4" />
               <span>All PPPoE Connections</span>
             </CommandItem>
-            <CommandItem onSelect={() => router.push("/hotspot/active")}>
+            <CommandItem onSelect={() => router.visit("/hotspot/active")}>
               <Wifi className="mr-2 h-4 w-4" />
               <span>Active Hotspots</span>
             </CommandItem>

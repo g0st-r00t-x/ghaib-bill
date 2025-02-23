@@ -1,5 +1,5 @@
-import { DashboardShell } from "@/Components/layout/dashboard-shell"
-import { NotificationList } from "@/Components/notification-list"
+import { DashboardShell } from "@/Pages/Components/layout/dashboard-shell"
+import { NotificationList } from "@/Pages/Components/notification-list"
 
 export default function NotificationsPage() {
   return (
