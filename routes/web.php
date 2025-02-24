@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MikrotikController;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -67,7 +68,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     //Network route
     Route::get('/network/bandwidth', function () {
-        return Inertia::render('Network/Bandwidth');  
+        return Inertia::render('Network/page');  
     })->name('network.bandwidth'); 
     Route::get('/network/traffic', function () {
         return Inertia::render('Network/Traffic');  
@@ -82,5 +83,15 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::get('/pppoe-active', [MikrotikController::class, 'getActivePPPoEUsers']);
+Route::get('/pppoe-users', [MikrotikController::class, 'getPPPoEUsers']);
+Route::get('/hotspot-users', [MikrotikController::class, 'getHotspotUsers']);
+Route::get('/hotspot-active', [MikrotikController::class, 'getActiveHotspotUsers']);
+Route::get('/dhcp-leases', [MikrotikController::class, 'getDHCPLeases']);
+Route::get('/logs', [MikrotikController::class, 'getLogs']);
+
+Route::get('/mikrotik/logs', [MikrotikController::class, 'sendRealtimeLogs']);
+Route::get('/mikrotik/monitor', [MikrotikController::class, 'startLogMonitoring']);
 
 require __DIR__.'/auth.php';

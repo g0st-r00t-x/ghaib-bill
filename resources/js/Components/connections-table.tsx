@@ -194,21 +194,6 @@ export function ConnectionsTable() {
   const [rowSelection, setRowSelection] = React.useState({})
   const [activeFilters, setActiveFilters] = React.useState<FilterOption[]>([])
   const [highlightedRow, setHighlightedRow] = React.useState<string | null>(null)
-
-  // Handle search params for highlighting and filtering
-  // React.useEffect(() => {
-
-  //   if (highlight) {
-  //     setHighlightedRow(highlight)
-  //   }
-  //   if (username) {
-  //     addFilter("username", username, `Username: ${username}`)
-  //   }
-  //   if (ip) {
-  //     addFilter("ipAddress", ip, `IP: ${ip}`)
-  //   }
-  // }, [])
-
   const table = useReactTable({
     data,
     columns,
@@ -250,114 +235,123 @@ export function ConnectionsTable() {
   }
 
   return (
-    <Card>
+    <Card className="w-full">
       <CardContent className="p-0">
-        <div className="flex flex-col gap-4 border-b p-4">
+        {/* Filter Section */}
+        <div className="border-b p-4 space-y-4">
           <div className="flex flex-wrap items-center gap-4">
-            <Input
-              placeholder="Filter by username..."
-              value={(table.getColumn("username")?.getFilterValue() as string) ?? ""}
-              onChange={(event) => table.getColumn("username")?.setFilterValue(event.target.value)}
-              className="max-w-sm"
-            />
+            {/* Search Input */}
+            <div className="flex-1 min-w-[200px]">
+              <Input
+                placeholder="Filter by username..."
+                value={(table.getColumn("username")?.getFilterValue() as string) ?? ""}
+                onChange={(event) => table.getColumn("username")?.setFilterValue(event.target.value)}
+                className="w-full"
+              />
+            </div>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                  <Filter className="mr-2 h-4 w-4" />
-                  Filter
-                  <ChevronDown className="ml-2 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[200px]">
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>Speed</DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
-                    <DropdownMenuLabel>Download Speed</DropdownMenuLabel>
-                    {["10", "20", "50"].map((speed) => (
-                      <DropdownMenuRadioItem
-                        key={`download-${speed}`}
-                        value={speed}
-                        onClick={() => addFilter("downloadSpeed", speed, `Download > ${speed}Mbps`)}
-                      >
-                        {`> ${speed} Mbps`}
-                      </DropdownMenuRadioItem>
-                    ))}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuLabel>Upload Speed</DropdownMenuLabel>
-                    {["5", "10", "20"].map((speed) => (
-                      <DropdownMenuRadioItem
-                        key={`upload-${speed}`}
-                        value={speed}
-                        onClick={() => addFilter("uploadSpeed", speed, `Upload > ${speed}Mbps`)}
-                      >
-                        {`> ${speed} Mbps`}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuSubContent>
-                </DropdownMenuSub>
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>Plan</DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
-                    {["Basic", "Premium", "Business"].map((plan) => (
-                      <DropdownMenuRadioItem
-                        key={plan}
-                        value={plan}
-                        onClick={() => addFilter("plan", plan, `Plan: ${plan}`)}
-                      >
-                        {plan}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuSubContent>
-                </DropdownMenuSub>
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>Signal Strength</DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
-                    {[
-                      { value: "-50", label: "Excellent" },
-                      { value: "-60", label: "Good" },
-                      { value: "-70", label: "Fair" },
-                      { value: "-80", label: "Poor" },
-                    ].map((signal) => (
-                      <DropdownMenuRadioItem
-                        key={signal.value}
-                        value={signal.value}
-                        onClick={() => addFilter("signal", signal.value, `Signal: ${signal.label}`)}
-                      >
-                        {signal.label}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuSubContent>
-                </DropdownMenuSub>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Filter Dropdown */}
+            <div className="flex gap-2 flex-wrap">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="whitespace-nowrap">
+                    <Filter className="mr-2 h-4 w-4" />
+                    Filter
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[200px]">
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>Speed</DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuLabel>Download Speed</DropdownMenuLabel>
+                      {["10", "20", "50"].map((speed) => (
+                        <DropdownMenuRadioItem
+                          key={`download-${speed}`}
+                          value={speed}
+                          onClick={() => addFilter("downloadSpeed", speed, `Download > ${speed}Mbps`)}
+                        >
+                          {`> ${speed} Mbps`}
+                        </DropdownMenuRadioItem>
+                      ))}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel>Upload Speed</DropdownMenuLabel>
+                      {["5", "10", "20"].map((speed) => (
+                        <DropdownMenuRadioItem
+                          key={`upload-${speed}`}
+                          value={speed}
+                          onClick={() => addFilter("uploadSpeed", speed, `Upload > ${speed}Mbps`)}
+                        >
+                          {`> ${speed} Mbps`}
+                        </DropdownMenuRadioItem>
+                      ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>Plan</DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      {["Basic", "Premium", "Business"].map((plan) => (
+                        <DropdownMenuRadioItem
+                          key={plan}
+                          value={plan}
+                          onClick={() => addFilter("plan", plan, `Plan: ${plan}`)}
+                        >
+                          {plan}
+                        </DropdownMenuRadioItem>
+                      ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                  <DropdownMenuSub>
+                    <DropdownMenuSubTrigger>Signal Strength</DropdownMenuSubTrigger>
+                    <DropdownMenuSubContent>
+                      {[
+                        { value: "-50", label: "Excellent" },
+                        { value: "-60", label: "Good" },
+                        { value: "-70", label: "Fair" },
+                        { value: "-80", label: "Poor" },
+                      ].map((signal) => (
+                        <DropdownMenuRadioItem
+                          key={signal.value}
+                          value={signal.value}
+                          onClick={() => addFilter("signal", signal.value, `Signal: ${signal.label}`)}
+                        >
+                          {signal.label}
+                        </DropdownMenuRadioItem>
+                      ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuSub>
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="ml-auto">
-                  Columns <ChevronDown className="ml-2 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                {table
-                  .getAllColumns()
-                  .filter((column) => column.getCanHide())
-                  .map((column) => {
-                    return (
-                      <DropdownMenuCheckboxItem
-                        key={column.id}
-                        className="capitalize"
-                        checked={column.getIsVisible()}
-                        onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                      >
-                        {column.id}
-                      </DropdownMenuCheckboxItem>
-                    )
-                  })}
-              </DropdownMenuContent>
-            </DropdownMenu>
+              {/* Columns Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="whitespace-nowrap">
+                    Columns <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {table
+                    .getAllColumns()
+                    .filter((column) => column.getCanHide())
+                    .map((column) => {
+                      return (
+                        <DropdownMenuCheckboxItem
+                          key={column.id}
+                          className="capitalize"
+                          checked={column.getIsVisible()}
+                          onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                        >
+                          {column.id}
+                        </DropdownMenuCheckboxItem>
+                      )
+                    })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
 
+          {/* Active Filters */}
           {activeFilters.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {activeFilters.map((filter, index) => (
@@ -392,60 +386,61 @@ export function ConnectionsTable() {
           )}
         </div>
 
-        <div className="relative">
-          <ScrollArea className="h-[calc(100vh-24rem)] rounded-md border-0">
-            <div className="relative min-w-max">
-              <Table>
-                <TableHeader className="sticky top-0 z-10 bg-background">
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => {
-                        return (
+        {/* Table Container */}
+        <div className="relative" style={{ height: 'calc(100vh - 300px)' }}>
+          <ScrollArea className="h-full">
+            <div className="min-w-full inline-block align-middle">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader className="sticky top-0 z-10 bg-background">
+                    {table.getHeaderGroups().map((headerGroup) => (
+                      <TableRow key={headerGroup.id}>
+                        {headerGroup.headers.map((header) => (
                           <TableHead key={header.id}>
                             {header.isPlaceholder
                               ? null
                               : flexRender(header.column.columnDef.header, header.getContext())}
                           </TableHead>
-                        )
-                      })}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody>
-                  {table.getRowModel().rows?.length ? (
-                    table.getRowModel().rows.map((row) => (
-                      <TableRow
-                        key={row.id}
-                        data-state={row.getIsSelected() && "selected"}
-                        className={cn(highlightedRow === row.original.id && "bg-muted")}
-                      >
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </TableCell>
                         ))}
                       </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={columns.length} className="h-24 text-center">
-                        No results.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                    ))}
+                  </TableHeader>
+                  <TableBody>
+                    {table.getRowModel().rows?.length ? (
+                      table.getRowModel().rows.map((row) => (
+                        <TableRow
+                          key={row.id}
+                          data-state={row.getIsSelected() && "selected"}
+                          className={cn(highlightedRow === row.original.id && "bg-muted")}
+                        >
+                          {row.getVisibleCells().map((cell) => (
+                            <TableCell key={cell.id}>
+                              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={columns.length} className="h-24 text-center">
+                          No results.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
-            <ScrollBar orientation="horizontal" />
           </ScrollArea>
         </div>
 
-        <div className="flex items-center justify-end space-x-2 border-t p-4">
-          <div className="flex-1 text-sm text-muted-foreground">
-            {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s)
-            selected.
+        {/* Pagination Section */}
+        <div className="flex items-center justify-between border-t p-4 bg-background">
+          <div className="text-sm text-muted-foreground">
+            {table.getFilteredSelectedRowModel().rows.length} of{" "}
+            {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
-          <div className="space-x-2">
+          <div className="flex items-center space-x-2">
             <Button
               variant="outline"
               size="sm"
@@ -454,7 +449,12 @@ export function ConnectionsTable() {
             >
               Previous
             </Button>
-            <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
               Next
             </Button>
           </div>

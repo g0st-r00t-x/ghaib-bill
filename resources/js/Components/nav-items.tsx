@@ -27,8 +27,45 @@ const navItems: NavItem[] = [
       { title: "Settings", href: route('pppoe.settings') },
     ],
   },
-  // ... rest of the navItems remain the same
+  {
+    title: "Hotspot",
+    icon: <Wifi className="h-5 w-5" />,
+    items: [
+      { title: "Active Users", href: route('hotspot.active') },
+      { title: "User Profiles", href: route('hotspot.profiles') },
+      { title: "Configuration", href: route('hotspot.config') },
+    ],
+  },
+  {
+    title: "Users",
+    icon: <Users className="h-5 w-5" />,
+    items: [
+      { title: "All Users", href: route('users.index') },
+      { title: "Add User", href: route('users.create') },
+      { title: "User Groups", href: route('users.groups') },
+    ],
+  },
+  {
+    title: "Network",
+    icon: <Activity className="h-5 w-5" />,
+    items: [
+      { title: "Bandwidth Monitor", href: route('network.bandwidth') },
+      { title: "Traffic Analysis", href: route('network.traffic') },
+      { title: "Network Map", href: route('network.map') },
+    ],
+  },
+  {
+    title: "Analytics",
+    icon: <BarChart3 className="h-5 w-5" />,
+    href: route('analytics'),
+  },
+  {
+    title: "Settings",
+    icon: <Settings className="h-5 w-5" />,
+    href: route('settings'),
+  },
 ];
+
 
 function NavLink({ item }: { item: NavItem }) {
   const { url } = usePage();
@@ -99,8 +136,8 @@ function NavLink({ item }: { item: NavItem }) {
               className={cn(
                 "flex rounded-lg py-1.5 text-sm transition-colors hover:text-primary",
                 url.startsWith(subItem.href)
-                  ? "bg-muted/50 font-medium text-primary"
-                  : "text-muted-foreground"
+                  ? "font-medium text-blue-700"
+                  : "text-red-700"
               )}
             >
               {subItem.title}

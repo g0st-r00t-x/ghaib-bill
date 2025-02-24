@@ -66,3 +66,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
