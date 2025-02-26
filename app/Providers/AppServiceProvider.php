@@ -28,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
         if (!$this->app->runningInConsole() && config('mikrotik.monitor_enabled', true)) {
             // Gunakan polling interval dari konfigurasi
             $pollInterval = config('mikrotik.poll_interval', 10);
-            dispatch(new MikrotikLogs($pollInterval));
+            dispatch(new MikrotikLogs());
         }
     }
 }

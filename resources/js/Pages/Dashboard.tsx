@@ -8,8 +8,8 @@ import { DashboardLayout } from '@/Layouts/DashboardLayout';
 export default function Dashboard() {
     useEffect(() => {
         // Use the imported Echo instance directly
-        echo.channel('mikrotik-logs')
-        .listen('MikroTikLogUpdated', event => {
+        echo.channel('mikrotik-status')
+            .listen('status.changed', event => {
             console.log(event);
         });
 

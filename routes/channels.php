@@ -2,6 +2,6 @@
 
 use Illuminate\Support\Facades\Broadcast;
 
-Broadcast::channel('mikrotik-logs', function () {
+Broadcast::channel('mikrotik-status', function () {
     return true;
 });
