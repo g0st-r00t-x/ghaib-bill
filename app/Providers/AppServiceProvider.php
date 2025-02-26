@@ -21,9 +21,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Konfigurasi Vite prefetch
         Vite::prefetch(concurrency: 3);
-        if (!app()->runningInConsole()) {
-        dispatch(new MikrotikLogs());
-    }
+        
+        // Mulai monitoring MikroTik jika tidak dalam mode console dan fitur diaktifkan
+        if (!$this->app->runningInConsole() && config('mikrotik.monitor_enabled', true)) {
+            // Gunakan polling interval dari konfigurasi
+            $pollInterval = config('mikrotik.poll_interval', 10);
+            dispatch(new MikrotikLogs($pollInterval));
+        }
     }
 }

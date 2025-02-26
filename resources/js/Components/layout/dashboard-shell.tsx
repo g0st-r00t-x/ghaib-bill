@@ -1,51 +1,58 @@
-
 import type React from "react"
-import { cn } from "@/lib/utils"
-import { ScrollArea } from "@/Components/ui/scroll-area"
-import { Globe2, Menu } from "lucide-react"
+
+import { Globe2 } from "lucide-react"
 import { Navbar } from "@/Components/navbar"
-import { NavItems } from "@/Components/nav-items"
-import { MobileSidebar } from "@/Components/layout/mobile-sidebar"
+import { MainNav } from "@/Components/main-nav"
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/Components/ui/sidebar"
 import { Link } from "@inertiajs/react"
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
-
   return (
-    <div className="flex min-h-screen w-screen overflow-hidden">
-      {/* Desktop Sidebar */}
-      <aside
-        className={cn(
-          "hidden h-screen w-72 border-r bg-background transition-transform lg:block",
-        )}
-      >
-        <div className="flex h-16 items-center border-b px-6">
-          <Link href="/" className="flex items-center gap-2 font-semibold">
-            <Globe2 className="h-6 w-6" />
-            <span>Network Monitor</span>
-          </Link>
-        </div>
-        <ScrollArea className="h-[calc(100vh-4rem)] pb-10">
-          <NavItems className="p-4" />
-        </ScrollArea>
-      </aside>
-
-      {/* Main Content */}
-      <main className={cn("w-full overflow-hidden transition-all ")}>
+    <SidebarProvider defaultOpen>
+      <Sidebar variant="sidebar" collapsible="icon">
+        <SidebarHeader>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton size="lg" asChild>
+                <Link href="#">
+                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                    <Globe2 className="size-4" />
+                  </div>
+                  <div className="flex flex-col gap-0.5 leading-none">
+                    <span className="font-semibold">Network Monitor</span>
+                  </div>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarHeader>
+        <SidebarContent>
+          <MainNav />
+        </SidebarContent>
+      </Sidebar>
+      <SidebarInset>
         <header className="sticky top-0 z-40 border-b bg-background">
           <div className="flex h-16 items-center gap-4 px-4">
-            <div className="flex items-center gap-2">
-              <MobileSidebar />
-            </div>
+            <SidebarTrigger />
             <div className="ml-auto">
               <Navbar />
             </div>
           </div>
         </header>
-        <section className="w-full overflow-hidden max-w-7xl mx-auto">
-          {children}
-        </section>
-      </main>
-    </div>
+        {children}
+      </SidebarInset>
+    </SidebarProvider>
   )
 }
 

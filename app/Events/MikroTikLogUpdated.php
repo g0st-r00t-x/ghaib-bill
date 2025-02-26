@@ -8,6 +8,7 @@ use Illuminate\Broadcasting\PresenceChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class MikroTikLogUpdated implements ShouldBroadcast
 {
@@ -16,19 +17,20 @@ class MikroTikLogUpdated implements ShouldBroadcast
     public $logs;
 
     public function __construct(array $logs)
-    {
+    { 
         $this->logs = $logs;
     }
 
     public function broadcastOn()
     {
+        Log::info('Data', $this->logs);
         return new Channel('mikrotik-logs');
     }
 
     public function broadcastWith()
 {
     return [
-        'logs' => json_encode($this->logs),
+        'logs' => $this->logs,
         'timestamp' => now()->toDateTimeString(),
     ];
 }

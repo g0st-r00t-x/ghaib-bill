@@ -2,112 +2,173 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use RouterOS\Query;
-use RouterOS\Client;
+use App\Services\MikrotikService;
 use App\Events\MikroTikLogUpdated;
-use function GuzzleHttp\json_decode;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
+use Exception;
 
 class MikrotikController extends Controller
 {
-    private function connectMikrotik()
+    /**
+     * MikroTik service instance.
+     */
+    protected $mikrotik;
+
+    /**
+     * Create a new controller instance.
+     *
+     * @param MikrotikService $mikrotik
+     */
+    public function __construct(MikrotikService $mikrotik)
     {
-        try {
-            return new Client([
-                'host' => env('MIKROTIK_HOST'),
-                'user' => env('MIKROTIK_USER'),
-                'pass' => env('MIKROTIK_PASS'),
-                'port' => (int) env('MIKROTIK_PORT'), // Konversi ke integer
-                'timeout' => 10,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Gagal terhubung ke MikroTik: ' . $e->getMessage()], 500);
-        }
+        $this->mikrotik = $mikrotik;
     }
 
-    public function sendRealtimeLogs()
+    /**
+     * Mengirimkan log realtime ke WebSocket
+     *
+     * @return JsonResponse
+     */
+    public function sendRealtimeLogs(): JsonResponse
     {
-            $logs = $this->fetchData('/log/print', 'Log Real-time');
-            $data = [];
-
-for ($i = 1; $i <= 2; $i++) {
-    $data[] = [
-        "id" => $i,
-        "name" => "User_$i",
-        "details" => [
-            "age" => rand(18, 50),
-            "skills" => [
-                "Programming" => ["PHP", "JavaScript", "Python", "GoLang"][array_rand(["PHP", "JavaScript", "Python", "GoLang"])],
-                "Database" => ["MySQL", "PostgreSQL", "MongoDB"][array_rand(["MySQL", "PostgreSQL", "MongoDB"])],
-                "Cloud" => ["AWS", "Azure", "GCP"][array_rand(["AWS", "Azure", "GCP"])]
-            ],
-            "address" => [
-                "city" => ["Jakarta", "Bandung", "Surabaya", "Yogyakarta", "Bali"][array_rand(["Jakarta", "Bandung", "Surabaya", "Yogyakarta", "Bali"])],
-                "country" => "Indonesia"
-            ]
-        ]
-    ];
-}
-            // Broadcast log ke WebSockets dengan Reverb
-            broadcast(new MikroTikLogUpdated($data));
+        try {
+            // Periksa koneksi sebelum mengambil log
+            if (!$this->mikrotik->isConnected()) {
+                return response()->json(['error' => 'Tidak dapat terhubung ke MikroTik router'], 503);
+            }
+            
+            // Ambil log dengan limit dari konfigurasi
+            $limit = config('mikrotik.log_limit', 50);
+            $logs = $this->mikrotik->getLogs();
+            
+            // Broadcast hanya jika ada log
+            if (!empty($logs)) {
+                event(new MikroTikLogUpdated($logs));
+            }
 
             return response()->json([
-                'message' => 'Logs sent to WebSocket',
-                'logs' => $logs,
+                'success' => true,
+                'message' => 'Logs berhasil dikirim ke WebSocket',
+                'count' => count($logs),
             ]);
-    }
-
-    // 1. Mendapatkan daftar user PPPoE yang sedang aktif
-    public function getActivePPPoEUsers()
-    {
-        return $this->fetchData('/ppp/active/print', 'PPPoE aktif');
-    }
-
-    // 2. Mendapatkan daftar user PPPoE (Secret)
-    public function getPPPoEUsers()
-    {
-        return $this->fetchData('/ppp/secret/print', 'Daftar pengguna PPPoE');
-    }
-
-    // 3. Mendapatkan daftar user Hotspot
-    public function getHotspotUsers()
-    {
-        return $this->fetchData('/ip/hotspot/user/print', 'Daftar pengguna Hotspot');
-    }
-
-    // 4. Mendapatkan daftar user Hotspot yang sedang aktif
-    public function getActiveHotspotUsers()
-    {
-        return $this->fetchData('/ip/hotspot/active/print', 'Hotspot aktif');
-    }
-
-    // 5. Mendapatkan daftar DHCP leases
-    public function getDHCPLeases()
-    {
-        return $this->fetchData('/ip/dhcp-server/lease/print', 'DHCP leases');
-    }
-
-    // 5. Mendapatkan daftar DHCP leases
-    public function getLogs()
-    {
-        $logs = $this->fetchData('/log/print', 'Logs');
-    }
-
-    // Fungsi untuk mengambil data dari MikroTik
-    private function fetchData($path, $desc)
-    {
-        $client = $this->connectMikrotik();
-        if ($client instanceof \Illuminate\Http\JsonResponse) {
-            return $client; // Mengembalikan error jika koneksi gagal
+        } catch (Exception $e) {
+            Log::error('Gagal mengirim log realtime: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
 
+    /**
+     * Mengambil daftar pengguna PPPoE yang aktif
+     *
+     * @return JsonResponse
+     */
+    public function getActivePPPoEUsers(): JsonResponse
+    {
+        return $this->executeAndRespond(function() {
+            return [
+                'success' => true,
+                'data' => $this->mikrotik->getActivePPPoEUsers(),
+                'count' => count($this->mikrotik->getActivePPPoEUsers())
+            ];
+        }, 'PPPoE aktif');
+    }
+
+    /**
+     * Mengambil semua pengguna PPPoE
+     *
+     * @return JsonResponse
+     */
+    public function getPPPoEUsers(): JsonResponse
+    {
+        return $this->executeAndRespond(function() {
+            return [
+                'success' => true,
+                'data' => $this->mikrotik->getPPPoEUsers(),
+                'count' => count($this->mikrotik->getPPPoEUsers())
+            ];
+        }, 'Daftar pengguna PPPoE');
+    }
+
+    /**
+     * Mengambil semua pengguna Hotspot
+     *
+     * @return JsonResponse
+     */
+    public function getHotspotUsers(): JsonResponse
+    {
+        return $this->executeAndRespond(function() {
+            return [
+                'success' => true,
+                'data' => $this->mikrotik->getHotspotUsers(),
+                'count' => count($this->mikrotik->getHotspotUsers())
+            ];
+        }, 'Daftar pengguna Hotspot');
+    }
+
+    /**
+     * Mengambil pengguna Hotspot yang aktif
+     *
+     * @return JsonResponse
+     */
+    public function getActiveHotspotUsers(): JsonResponse
+    {
+        return $this->executeAndRespond(function() {
+            return [
+                'success' => true,
+                'data' => $this->mikrotik->getActiveHotspotUsers(),
+                'count' => count($this->mikrotik->getActiveHotspotUsers())
+            ];
+        }, 'Hotspot aktif');
+    }
+
+    /**
+     * Mengambil daftar DHCP Leases
+     *
+     * @return JsonResponse
+     */
+    public function getDHCPLeases(): JsonResponse
+    {
+        return $this->executeAndRespond(function() {
+            return [
+                'success' => true,
+                'data' => $this->mikrotik->getDHCPLeases(),
+                'count' => count($this->mikrotik->getDHCPLeases())
+            ];
+        }, 'DHCP leases');
+    }
+
+    /**
+     * Method helper untuk mengeksekusi fungsi dan menanggapi dengan format yang konsisten
+     *
+     * @param callable $callback
+     * @param string $operation
+     * @return JsonResponse
+     */
+    private function executeAndRespond(callable $callback, string $operation): JsonResponse
+    {
         try {
-            $query = new Query($path);
-            $data = $client->query($query)->read();
-
-            return response()->json([$desc => $data]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Gagal mengambil data: ' . $e->getMessage()], 500);
+            // Periksa koneksi sebelum mengambil data
+            if (!$this->mikrotik->isConnected()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak dapat terhubung ke MikroTik router'
+                ], 503);
+            }
+            
+            return response()->json($callback());
+            
+        } catch (Exception $e) {
+            Log::error("Gagal mendapatkan {$operation}: " . $e->getMessage(), [
+                'exception' => $e
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 }

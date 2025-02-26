@@ -17,7 +17,7 @@ const DataTable = ({
   resetFilters,
 }) => {
   return (
-    <div className="flex flex-col w-full h-full gap-4 bg-background rounded-lg border">
+    <div className="flex flex-col gap-4 bg-background rounded-lg border">
       {/* Filter Section */}
       <div className="p-4 border-b">
         <div className="flex flex-wrap items-center gap-4 mb-4">
