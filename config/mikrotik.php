@@ -1,46 +1,33 @@
 <?php
-// config/mikrotik.php
 
 return [
     /*
     |--------------------------------------------------------------------------
-    | MikroTik Connection Settings
+    | Mikrotik Connection Settings
     |--------------------------------------------------------------------------
     |
-    | Pengaturan untuk koneksi ke router MikroTik
+    | Here you can configure your Mikrotik connection settings
     |
     */
 
-    'host' => env('MIKROTIK_HOST', '192.168.88.1'),
+    // Mikrotik Router connection details
+    'host' => env('MIKROTIK_HOST', '192.168.1.1'),
     'user' => env('MIKROTIK_USER', 'admin'),
-    'pass' => env('MIKROTIK_PASS', ''),
+    'past' => env('MIKROTIK_PASS', ''),
+    
+    // Connection settings
     'port' => env('MIKROTIK_PORT', 8728),
-    'timeout' => env('MIKROTIK_TIMEOUT', 10),
+    'ssl' => env('MIKROTIK_SSL', false),
+    'timeout' => env('MIKROTIK_TIMEOUT', 3),
+    'attempts' => env('MIKROTIK_ATTEMPTS', 5),
+    'delay' => env('MIKROTIK_DELAY', 3),
     
-    /*
-    |--------------------------------------------------------------------------
-    | MikroTik Monitoring Settings
-    |--------------------------------------------------------------------------
-    |
-    | Pengaturan untuk monitoring MikroTik
-    |
-    */
+    // Debug mode
+    'debug' => env('MIKROTIK_DEBUG', false),
     
-    'poll_interval' => env('MIKROTIK_POLL_INTERVAL', 10),
-    'log_limit' => env('MIKROTIK_LOG_LIMIT', 50),
-    'monitor_enabled' => env('MIKROTIK_MONITOR_ENABLED', true),
-    'monitor_types' => explode(',', env('MIKROTIK_MONITOR_TYPES', 'logs')),
+    // Auto-connect on service initialization
+    'auto_connect' => env('MIKROTIK_AUTO_CONNECT', false),
     
-    /*
-    |--------------------------------------------------------------------------
-    | MikroTik Caching Settings
-    |--------------------------------------------------------------------------
-    |
-    | Pengaturan untuk caching data MikroTik
-    | Mengaktifkan cache sangat direkomendasikan untuk mengurangi beban router
-    |
-    */
-    
-    'use_cache' => env('MIKROTIK_USE_CACHE', true),
-    'cache_ttl' => env('MIKROTIK_CACHE_TTL', 5), // Dalam detik
+    // Session persistence - if true, will maintain connection through multiple requests
+    'persistent' => env('MIKROTIK_PERSISTENT', true),
 ];

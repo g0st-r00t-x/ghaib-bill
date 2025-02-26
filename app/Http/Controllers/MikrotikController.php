@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\MikroTikStatusChanged;
 use App\Services\MikrotikService;
 use App\Events\MikroTikLogUpdated;
 use Illuminate\Http\JsonResponse;
@@ -32,32 +31,34 @@ class MikrotikController extends Controller
      * @return JsonResponse
      */
     public function sendRealtimeLogs(): JsonResponse
-{
-    try {
-        // Mencoba membuat koneksi secara langsung
-        if (!$this->mikrotik->connect()) {
-            return response()->json(['error' => 'Tidak dapat terhubung ke MikroTik router'], 503);
-        }
-        
-        // Ambil log dengan limit dari konfigurasi
-        $limit = config('mikrotik.log_limit', 50);
-        $logs = $this->mikrotik->getLogs();
-        
-        // Dispatch event untuk mengirim data ke WebSocket
-        event(new MikroTikStatusChanged(true, 'Hello World!'));
+    {
+        try {
+            // Periksa koneksi sebelum mengambil log
+            if (!$this->mikrotik->isConnected()) {
+                return response()->json(['error' => 'Tidak dapat terhubung ke MikroTik router'], 503);
+            }
+            
+            // Ambil log dengan limit dari konfigurasi
+            $limit = config('mikrotik.log_limit', 50);
+            $logs = $this->mikrotik->getLogs();
+            
+            // Broadcast hanya jika ada log
+            if (!empty($logs)) {
+                event(new MikroTikLogUpdated($logs));
+            }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Logs berhasil dikirim ke WebSocket',
-            'count' => count($logs),
-        ]);
-    } catch (Exception $e) {
-        Log::error('Gagal mengirim log realtime: ' . $e->getMessage(), [
-            'exception' => $e
-        ]);
-        return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json([
+                'success' => true,
+                'message' => 'Logs berhasil dikirim ke WebSocket',
+                'count' => count($logs),
+            ]);
+        } catch (Exception $e) {
+            Log::error('Gagal mengirim log realtime: ' . $e->getMessage(), [
+                'exception' => $e
+            ]);
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
-}
 
     /**
      * Mengambil daftar pengguna PPPoE yang aktif

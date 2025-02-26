@@ -2,16 +2,16 @@ import { useEffect } from 'react';
 import { NetworkStats } from '@/Components/network-stats';
 import { Overview } from '@/Components/overview';
 import { RecentActivity } from '@/Components/recent-activity';
-import  echo  from '@/echo';
+import echo from '@/echo';
 import { DashboardLayout } from '@/Layouts/DashboardLayout';
 
 export default function Dashboard() {
     useEffect(() => {
         // Use the imported Echo instance directly
-        echo.channel('mikrotik-status')
-            .listen('status.changed', event => {
-            console.log(event);
-        });
+        echo.channel('mikrotik-logs')
+            .listen('MikroTikLogUpdated', event => {
+                console.log(event);
+            });
 
     }, []);
 
@@ -30,4 +30,3 @@ export default function Dashboard() {
         </DashboardLayout>
     );
 }
-

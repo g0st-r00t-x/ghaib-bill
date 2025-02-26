@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MikrotikController;
+use App\Http\Controllers\RouterOsController;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -93,5 +94,7 @@ Route::get('/logs', [MikrotikController::class, 'getLogs']);
 
 Route::get('/mikrotik/logs', [MikrotikController::class, 'sendRealtimeLogs']);
 Route::get('/mikrotik/monitor', [MikrotikController::class, 'startLogMonitoring']);
+
+Route::get('/router-os', [RouterOsController::class, 'index']);
 
 require __DIR__.'/auth.php';
