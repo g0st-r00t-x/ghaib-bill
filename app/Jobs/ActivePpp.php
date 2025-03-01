@@ -10,10 +10,10 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use App\Events\MikroTikLogUpdated;
+use App\Events\ActivePppUpdated;
 use Exception;
 
-class MikrotikLogs implements ShouldQueue
+class ActivePpp implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -30,7 +30,7 @@ class MikrotikLogs implements ShouldQueue
     public function handle(MikrotikService $mikrotikService): void
     {
         try {
-            $cacheKey = 'mikrotik_logs_cache';
+            $cacheKey = 'mikrotik_activePpp_cache';
             $hashKey = 'mikrotik_logs_hash';
 
             // Ambil data terakhir dari cache
@@ -56,11 +56,11 @@ class MikrotikLogs implements ShouldQueue
                 Log::info('Inisialisasi cache dengan data awal.');
                 Cache::put($cacheKey, $newData, now()->addMinutes(60)); // Simpan data baru ke cache
                 Cache::put($hashKey, $newHash, now()->addMinutes(60)); // Simpan hash baru
-                event(new MikroTikLogUpdated($newData)); // Kirim event ke frontend
+                event(new ActivePppUpdated($newData)); // Kirim event ke frontend
             } elseif ($newHash !== $cachedHash) {
                 // Data berubah, kirim event dan update cache
                 Log::info('Data berubah, memperbarui cache dan mengirim event.');
-                event(new MikroTikLogUpdated($newData));
+                event(new ActivePppUpdated($newData));
                 Cache::put($cacheKey, $newData, now()->addMinutes(60)); // Simpan data baru ke cache
                 Cache::put($hashKey, $newHash, now()->addMinutes(60)); // Simpan hash baru
             } else {

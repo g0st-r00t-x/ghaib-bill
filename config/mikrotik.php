@@ -13,7 +13,7 @@ return [
     // Mikrotik Router connection details
     'host' => env('MIKROTIK_HOST', '192.168.1.1'),
     'user' => env('MIKROTIK_USER', 'admin'),
-    'past' => env('MIKROTIK_PASS', ''),
+    'pass' => env('MIKROTIK_PASS', ''),
     
     // Connection settings
     'port' => env('MIKROTIK_PORT', 8728),

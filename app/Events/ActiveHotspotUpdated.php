@@ -10,29 +10,32 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class MikroTikLogUpdated implements ShouldBroadcast
+class ActiveHotspotUpdated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $logs;
 
     public function __construct(array $logs)
-    { 
+    {
         $this->logs = $logs;
     }
 
     public function broadcastOn()
     {
-        return new Channel('mikrotik-logs');
+        return new Channel('mikrotik-active-hotspot');
     }
-    
+
+    public function broadcastAs()
+    {
+        return 'active-hotspot-updated';
+    }
 
     public function broadcastWith()
-{
-    return [
-        'logs' => $this->logs,
-        'timestamp' => now()->toDateTimeString(),
-    ];
-}
-
+    {
+        return [
+            'logs' => $this->logs,
+            'timestamp' => now()->toDateTimeString(),
+        ];
+    }
 }

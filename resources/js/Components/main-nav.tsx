@@ -26,9 +26,9 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   {
-    title: "Overview",
+    title: "Dashboard",
     icon: <Home className="w-5 h-5" />,
-    href: "/",
+    href: "/dashboard",
   },
   {
     title: "PPPoE",

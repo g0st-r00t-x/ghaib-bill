@@ -22,25 +22,27 @@ const DataTable = ({
       <div className="p-4 border-b">
         <div className="flex flex-wrap items-center gap-4 mb-4">
           <TableSearch table={table} />
-          <div className="flex gap-2 flex-wrap">
+          {/* <div className="flex gap-2 flex-wrap">
             <TableFilters addFilter={addFilter} />
             <TableColumns table={table} />
-          </div>
+          </div> */}
         </div>
 
-        <ActiveFilters
+        {/* <ActiveFilters
           activeFilters={activeFilters}
           removeFilter={removeFilter}
           resetFilters={resetFilters}
-        />
+        /> */}
       </div>
 
       {/* Table Section - akan mengambil sisa ruang yang tersedia */}
+      <div className='@container overflow-x-scroll'>
         <DataTableContent
           table={table}
           columns={columns}
           highlightedRow={highlightedRow}
         />
+      </div>
 
       {/* Pagination Section */}
       <div className="p-4 border-t mt-auto">

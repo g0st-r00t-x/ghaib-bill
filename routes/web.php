@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MikrotikController;
 use App\Http\Controllers\RouterOsController;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -95,6 +96,33 @@ Route::get('/logs', [MikrotikController::class, 'getLogs']);
 Route::get('/mikrotik/logs', [MikrotikController::class, 'sendRealtimeLogs']);
 Route::get('/mikrotik/monitor', [MikrotikController::class, 'startLogMonitoring']);
 
-Route::get('/router-os', [RouterOsController::class, 'index']);
+Route::prefix('router-os')->group(function () {
+    Route::get('/', [RouterOsController::class, 'index']);
+    Route::get('/connect', [RouterOsController::class, 'connect']);
+    Route::get('/interfaces', [RouterOsController::class, 'getInterfaces']);
+    Route::get('/ppp/active', [RouterOsController::class, 'getUsers']);
+    Route::get('/resources', [RouterOsController::class, 'getResources']);
+    Route::post('/create-hotspot-user', [RouterOsController::class, 'createHotspotUser']);
+});
+
+
+//Initialize data when the application starts
+Route::get('/api/mikrotik/logs', function () {
+    $cacheKey = 'mikrotik_logs_cache';
+    $data = Cache::get($cacheKey, []);
+    return response()->json($data);
+});
+
+Route::get('/api/mikrotik/ppp/active', function () {
+    $cacheKey = 'mikrotik_activePpp_cache';
+    $data = Cache::get($cacheKey, []);
+    return response()->json($data);
+});
+
+Route::get('/api/mikrotik/hotspot/active', function () {
+    $cacheKey = 'mikrotik_activeHotspot_cache';
+    $data = Cache::get($cacheKey, []);
+    return response()->json($data);
+});
 
 require __DIR__.'/auth.php';

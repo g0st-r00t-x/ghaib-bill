@@ -1,4 +1,12 @@
 <?php
+
+
+namespace App\Libraries;
+
+use Iterator;
+use IteratorAggregate;
+use Traversable;
+
 /*****************************
  *
  * RouterOS PHP API class v1.7
@@ -22,7 +30,7 @@ class RouterOsAPI
     var $port      = 8728;  //  Port to connect to (default 8729 for ssl)
     var $ssl       = false; //  Connect using SSL (must enable api-ssl in IP/Services)
     var $certless  = false; //  Set SSL SECLEVEL=0 to allow SSL with no certificates
-    var $timeout   = 3;     //  Connection attempt timeout and data read timeout
+    var $timeout   = 20;     //  Connection attempt timeout and data read timeout
     var $attempts  = 5;     //  Connection attempt count
     var $delay     = 3;     //  Delay between connection attempts in seconds
 
@@ -95,6 +103,12 @@ class RouterOsAPI
      */
     public function connect($ip, $login, $password)
     {
+        // Check if already connected
+        if ($this->connected && is_resource($this->socket)) {
+            $this->debug("Already connected. Reusing existing connection.");
+            return true;
+        }
+
         for ($ATTEMPT = 1; $ATTEMPT <= $this->attempts; $ATTEMPT++) {
             $this->connected = false;
             $PROTOCOL = ($this->ssl ? 'ssl://' : '' );
@@ -431,13 +445,23 @@ class RouterOsAPI
         return $this->read();
     }
 
+    public function isConnected()
+    {
+        return $this->connected && is_resource($this->socket);
+    }
+
+    public function getSocket()
+    {
+        return $this->socket;
+    }
+
     /**
      * Standard destructor
      *
      * @return void
      */
-    public function __destruct()
-    {
-        $this->disconnect();
-    }
+    // public function __destruct()
+    // {
+    //     $this->disconnect();
+    // }
 }

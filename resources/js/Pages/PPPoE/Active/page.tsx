@@ -1,20 +1,6 @@
-import { DashboardShell } from "@/Components/layout/dashboard-shell"
-import { BreadcrumbNav } from "@/Components/breadcrumb-nav"
-import DataTable from "@/Components/Tables/DataTable"
-import * as React from "react"
-import {
-  type ColumnDef,
-  type ColumnFiltersState,
-  type SortingState,
-  type VisibilityState,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, Filter, MoreHorizontal, Signal, X } from "lucide-react"
-
+import { DataTable } from "@/Components/data-table/data-table"
+import type { ColumnDef } from "@tanstack/react-table"
+import { ArrowUpDown, MoreHorizontal } from "lucide-react"
 import { Button } from "@/Components/ui/button"
 import {
   DropdownMenu,
@@ -24,125 +10,121 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/Components/ui/dropdown-menu"
-import { Badge } from "@/Components/ui/badge"
+import type { ColumnFilter, SearchableColumn } from "@/types/data-table"
+import { DashboardShell } from "@/Components/layout/dashboard-shell"
+import { BreadcrumbNav } from "@/Components/breadcrumb-nav"
+import { useEffect, useState } from "react"
+import { io } from "socket.io-client"
 
-// This would come from your backend
-const data: Connection[] = [
+// Updated interface to match the new structure
+interface PPPConnection {
+  ".id": string
+  name: string
+  service: string
+  "caller-id"?: string
+  caller_id: string | null
+  current_address: string | null
+  disabled: string
+  "ipv6-routes": string
+  is_active: boolean
+  "last-logged-out": string
+  "limit-bytes-in": string
+  "limit-bytes-out": string
+  password: string
+  profile: string
+  routes: string
+}
+
+// Sample data with the new structure
+
+
+// Define your filters for the new structure
+const filters: ColumnFilter[] = [
   {
-    id: "1",
-    username: "john.doe",
-    ipAddress: "192.168.1.100",
-    macAddress: "00:1B:44:11:3A:B7",
-    uptime: "2 hours",
-    downloadSpeed: "15.5",
-    uploadSpeed: "5.2",
-    signal: -65,
-    status: "active",
-    plan: "Premium",
+    id: "service",
+    label: "Service",
+    options: [
+      { value: "any", label: "Any" },
+      { value: "pppoe", label: "PPPoE" },
+      { value: "pptp", label: "PPTP" },
+      { value: "l2tp", label: "L2TP" },
+    ],
   },
   {
-    id: "2",
-    username: "jane.smith",
-    ipAddress: "192.168.1.101",
-    macAddress: "00:1B:44:11:3A:B8",
-    uptime: "5 hours",
-    downloadSpeed: "22.3",
-    uploadSpeed: "8.1",
-    signal: -55,
-    status: "active",
-    plan: "Basic",
+    id: "is_active",
+    label: "Status",
+    options: [
+      { value: "true", label: "Aktif" },
+      { value: "false", label: "Tidak Aktif" },
+    ],
+  },
+  {
+    id: "profile",
+    label: "Profile",
+    options: [
+      { value: "default", label: "Default" },
+      // Add other profile options as needed
+    ],
   },
 ]
 
-export type Connection = {
-  id: string
-  username: string
-  ipAddress: string
-  macAddress: string
-  uptime: string
-  downloadSpeed: string
-  uploadSpeed: string
-  signal: number
-  status: "active" | "inactive"
-  plan: string
-}
-
-const getSignalStrength = (signal: number) => {
-  if (signal >= -50) return "Excellent"
-  if (signal >= -60) return "Good"
-  if (signal >= -70) return "Fair"
-  return "Poor"
-}
-
-const getSignalColor = (signal: number) => {
-  if (signal >= -50) return "bg-green-500"
-  if (signal >= -60) return "bg-blue-500"
-  if (signal >= -70) return "bg-yellow-500"
-  return "bg-red-500"
-}
-
-export const columns: ColumnDef<Connection>[] = [
+// Define searchable columns for the new structure
+const searchableColumns: SearchableColumn[] = [
   {
-    accessorKey: "username",
-    header: "Username",
-    cell: ({ row }) => <div className="font-medium">{row.getValue("username")}</div>,
+    id: "name",
+    label: "Name",
   },
   {
-    accessorKey: "ipAddress",
-    header: "IP Address",
+    id: "caller-id",
+    label: "Caller ID",
   },
   {
-    accessorKey: "macAddress",
-    header: "MAC Address",
+    id: "current_address",
+    label: "IP Address",
   },
+]
+
+// Updated columns definition to match the new structure
+const columns: ColumnDef<PPPConnection>[] = [
   {
-    accessorKey: "uptime",
-    header: ({ column }) => {
-      return (
-        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-          Uptime
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
+    id: "no",
+    header: "No",
+    cell: ({ row }) => {
+      // Get the row index and add 1 to start from 1 instead of 0
+      return row.index + 1;
     },
   },
   {
-    accessorKey: "downloadSpeed",
-    header: "Download",
-    cell: ({ row }) => `${row.getValue("downloadSpeed")} Mbps`,
+    accessorKey: "name",
+    header: "Name",
   },
   {
-    accessorKey: "uploadSpeed",
-    header: "Upload",
-    cell: ({ row }) => `${row.getValue("uploadSpeed")} Mbps`,
+    accessorKey: "service",
+    header: "Service",
   },
   {
-    accessorKey: "signal",
-    header: "Signal",
+    accessorKey: "profile",
+    header: "Profile",
+  },
+  {
+    accessorKey: "current_address",
+    header: "IP Address",
     cell: ({ row }) => {
-      const signal = row.getValue("signal") as number
+      const address = row.getValue("current_address")
+      return address || "Not connected"
+    },
+  },
+  {
+    accessorKey: "is_active",
+    header: "Status",
+    cell: ({ row }) => {
+      const isActive = row.getValue("is_active")
       return (
-        <div className="flex items-center gap-2">
-          <Signal className="h-4 w-4" />
-          <Badge variant="outline" className={getSignalColor(signal)}>
-            {getSignalStrength(signal)}
-          </Badge>
+        <div className={isActive ? "text-green-500 font-medium" : "text-red-500 font-medium"}>
+          {isActive ? "Aktif" : "Tidak Aktif"}
         </div>
       )
     },
-  },
-  {
-    accessorKey: "plan",
-    header: "Plan",
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => (
-      <Badge variant="outline" className="bg-green-500/10 text-green-500">
-        {row.getValue("status")}
-      </Badge>
-    ),
   },
   {
     id: "actions",
@@ -159,76 +141,51 @@ export const columns: ColumnDef<Connection>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(connection.ipAddress)}>
-              Copy IP address
+            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(connection[".id"])}>
+              Copy connection ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
+            <DropdownMenuItem>Disconnect</DropdownMenuItem>
+            <DropdownMenuItem>Edit connection</DropdownMenuItem>
             <DropdownMenuItem>View details</DropdownMenuItem>
-            <DropdownMenuItem>View traffic</DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600">Disconnect</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )
     },
   },
 ]
+//Socket
+const socket = io("http://localhost:8080");
 
-interface FilterOption {
-  field: keyof Connection
-  value: string
-  label: string
-}
+export default function PppActive() {
+  // State to store data from the endpoint
+  const [logs, setLogs] = useState<PPPConnection[]>([]);
 
-export default function PPPoEActivePage() {
-  const [sorting, setSorting] = React.useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
-    const [rowSelection, setRowSelection] = React.useState({})
-    const [activeFilters, setActiveFilters] = React.useState<FilterOption[]>([])
-    const [highlightedRow, setHighlightedRow] = React.useState<string | null>(null)
-    const table = useReactTable({
-      data,
-      columns,
-      onSortingChange: setSorting,
-      onColumnFiltersChange: setColumnFilters,
-      getCoreRowModel: getCoreRowModel(),
-      getPaginationRowModel: getPaginationRowModel(),
-      getSortedRowModel: getSortedRowModel(),
-      getFilteredRowModel: getFilteredRowModel(),
-      onColumnVisibilityChange: setColumnVisibility,
-      onRowSelectionChange: setRowSelection,
-      state: {
-        sorting,
-        columnFilters,
-        columnVisibility,
-        rowSelection,
-      },
-    })
+  // State untuk menyimpan data PPP
+  const [pppData, setPppData] = useState<PPPConnection[]>([]);
   
-    const addFilter = (field: keyof Connection, value: string, label: string) => {
-      if (!activeFilters.some((f) => f.field === field && f.value === value)) {
-        const newFilter = { field, value, label }
-        setActiveFilters([...activeFilters, newFilter])
   
-        // Update table filters
-        const currentFilters = table.getState().columnFilters
-        const fieldFilters = (currentFilters.find((f) => f.id === field)?.value as string[]) || []
-        table.getColumn(field)?.setFilterValue([...fieldFilters, value])
+    // Menangani koneksi socket dan pembaruan data
+    useEffect(() => {
+      const onPppDataUpdate = (data) => {
+        console.log("Data PPP diperbarui:", data);
+        setPppData(data.pppSecret);
+      };
+  
+      // Registrasi event listeners
+      socket.on('pppDataUpdate', onPppDataUpdate);
+  
+      // Jika socket tidak terhubung, coba hubungkan
+      if (!socket.connected) {
+        socket.connect();
       }
-    }
   
-    const removeFilter = (filter: FilterOption) => {
-      setActiveFilters(activeFilters.filter((f) => !(f.field === filter.field && f.value === filter.value)))
-  
-      // Update table filters
-      const currentFilters = table.getState().columnFilters
-      const fieldFilters = (currentFilters.find((f) => f.id === filter.field)?.value as string[]) || []
-      table.getColumn(filter.field)?.setFilterValue(fieldFilters.filter((v) => v !== filter.value))
-    }
-  const resetFilters = () => {
-    setActiveFilters([]);
-    table.resetColumnFilters();
-  };
+      // Cleanup function
+      return () => {
+        socket.off('pppDataUpdate', onPppDataUpdate);
+      };
+    }, []);
+
   return (
     <DashboardShell>
       <div className="space-y-4 p-4 pt-6 md:p-8">
@@ -240,16 +197,12 @@ export default function PPPoEActivePage() {
           </div>
         </div>
         <DataTable
-          table={table}
           columns={columns}
-          highlightedRow={highlightedRow}
-          activeFilters={activeFilters}
-          addFilter={addFilter}
-          removeFilter={removeFilter}
-          resetFilters={resetFilters}
+          data={pppData}
+          filters={filters}
+          searchableColumns={searchableColumns}
         />
       </div>
     </DashboardShell>
   )
 }
-
